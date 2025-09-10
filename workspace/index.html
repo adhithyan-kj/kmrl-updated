@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>KMRL Intelligent Dashboard</title>
+  <title>Metro Mithra</title>
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Chart.js CDN -->
@@ -13,7 +13,7 @@
   <script src="https://unpkg.com/lucide@0.292.0/dist/umd/lucide.min.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
 
   <style>
@@ -52,8 +52,8 @@
       transform: translateY(10px);
     }
 
-    .font-merriweather {
-      font-family: 'Merriweather', serif;
+    .font-title {
+      font-family: 'Cinzel', serif;
     }
 
     body {
@@ -62,11 +62,9 @@
 
     /* NEW STYLES FOR DARK LOGIN */
     #login-screen {
-      background-color: #0f172a;
-      /* slate-900 */
-      background-image:
-        radial-gradient(at 15% 20%, hsla(260, 85%, 65%, 0.2) 0px, transparent 50%),
-        radial-gradient(at 80% 85%, hsla(212, 85%, 55%, 0.25) 0px, transparent 50%);
+        background-image: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('img.jpg');
+        background-size: cover;
+        background-position: center;
     }
 
     .dark-input-bg {
@@ -86,7 +84,7 @@
 
   <!-- Login Screen -->
   <div id="login-screen" class="flex flex-col items-center justify-center min-h-screen px-6">
-    <h1 class="text-3xl font-bold text-gray-100 mb-8 font-merriweather">KMRL Intelligent Dashboard</h1>
+    <h1 class="text-3xl font-bold text-gray-100 mb-8 font-title">Metro Mithra</h1>
     <div class="bg-gray-800/30 backdrop-blur-xl border border-gray-400/20 shadow-2xl rounded-2xl px-8 pt-6 pb-8 w-full max-w-sm">
 
       <!-- Login Step 1: Role and Location Selection -->
@@ -160,9 +158,9 @@
     <nav id="side-menu" class="w-72 bg-blue-800 text-white flex flex-col p-4">
       <div class="flex items-center mb-10">
         <div class="bg-white rounded-full w-10 h-10 flex items-center justify-center mr-3">
-          <span class="text-blue-800 font-bold text-lg">KM</span>
+          <span class="text-blue-800 font-bold text-lg">MM</span>
         </div>
-        <h1 class="text-xl font-bold">KMRL Assistant</h1>
+        <h1 class="text-xl font-bold">Metro Mithra</h1>
       </div>
 
       <p class="px-3 text-xs uppercase text-blue-300 font-semibold mb-2">Main</p>
@@ -372,15 +370,13 @@
         <div class="mt-4 p-4 bg-gray-100 rounded-xl">
           <h4 class="text-md font-bold text-gray-800 mb-2">AI Summarizer</h4>
           <div class="flex items-center space-x-2 mb-4">
-            <input type="file" id="attachment-upload-input"
-              class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" />
-            <button id="summarize-attachment-btn" disabled
-              class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-xl text-sm disabled:opacity-50 disabled:cursor-not-allowed">
-              Summarize
+             <button id="summarize-email-btn"
+              class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-xl text-sm">
+              Summarize Email
             </button>
           </div>
-          <div id="attachment-summary-section">
-            <p id="attachment-summary-el" class="text-gray-600 text-sm whitespace-pre-line"></p>
+          <div id="summary-section">
+            <p id="summary-el" class="text-gray-600 text-sm whitespace-pre-line"></p>
           </div>
         </div>
       </div>
@@ -447,9 +443,8 @@
     const modalPriorityTag = document.getElementById("modal-priority-tag");
     const closeModalBtn = document.getElementById("close-modal-btn");
 
-    const attachmentUploadInput = document.getElementById("attachment-upload-input");
-    const summarizeAttachmentBtn = document.getElementById("summarize-attachment-btn");
-    const attachmentSummaryEl = document.getElementById("attachment-summary-el");
+    const summarizeEmailBtn = document.getElementById("summarize-email-btn");
+    const summaryEl = document.getElementById("summary-el");
 
     const messageBox = document.getElementById("message-box");
     const messageBoxTitle = document.getElementById("message-box-title");
@@ -472,15 +467,15 @@
     const sendForwardBtn = document.getElementById('send-forward-btn');
 
     let currentUser = null;
-    let attachmentFile = null;
     let currentMessages = [];
     let messageToForward = null;
     let initializedCharts = {};
     let emailRefreshInterval = null; // To hold the timer
+    const GEMINI_API_KEY = "AIzaSyBaSJz-8Ma99Whgh7OcqBAuWx9AlysEsoU";
 
     const stationLocations = ["Aluva", "Kalamassery", "Maharajas College", "Vyttila", "Petta"];
     const depotLocations = ["Muttom", "Thripunithura", "Kakkanad", "Petta", "Aluva Yard"];
-    
+
     const roleSpecificTags = {
       'Station Controller': ["All", "Passenger complain", "shift rosters", "safety updates", "incident alerts", "revenue data"],
       'Depot Manager': ["All", "Rolling Stock", "Job Cards", "Spare parts", "Contractor reports", "depot safety"],
@@ -513,41 +508,41 @@
       'Depot Manager': ["Assign team for Rolling Stock 102 monthly inspection", "Review and verify track cleaning contractor's report", "Schedule team meeting to discuss depot safety audit results"],
       'default': ["Complete mandatory annual training", "Update personal contact information in HR portal"]
     };
-    
+
     // --- DATA FETCHING & TAGGING ---
     function assignTag(subject) {
-        if (!subject) return 'general';
-        const s = subject.toLowerCase();
-        // Station Controller
-        if (s.includes('complaint')) return 'Passenger complain';
-        if (s.includes('roster')) return 'shift rosters';
-        if (s.includes('safety') && !s.includes('circular')) return 'safety updates';
-        if (s.includes('alert')) return 'incident alerts';
-        if (s.includes('revenue')) return 'revenue data';
-        // Depot Manager
-        if (s.includes('rolling stock') || s.includes('rs 102')) return 'Rolling Stock';
-        if (s.includes('job card')) return 'Job Cards';
-        if (s.includes('spare part') || s.includes('inventory')) return 'Spare parts';
-        if (s.includes('contractor')) return 'Contractor reports';
-        if (s.includes('depot safety')) return 'depot safety';
-        // Managing Director
-        if (s.includes('finance') || s.includes('financial')) return 'finance';
-        if (s.includes('operation')) return 'operations';
-        if (s.includes('project')) return 'projects';
-        if (s.includes('hr') || s.includes('employee survey')) return 'HR';
-        if (s.includes('regulation') || s.includes('policy')) return 'regulations';
-        // Director of Finance
-        if (s.includes('budget')) return 'budgets';
-        if (s.includes('invoice')) return 'invoices';
-        if (s.includes('purchase order') || s.includes('po request')) return 'purchase orders';
-        if (s.includes('vendor') || s.includes('contract')) return 'vendor contracts';
-        // Director of Operations
-        if (s.includes('maintenance')) return 'maintenance';
-        if (s.includes('circular')) return 'safety circulars';
-        if (s.includes('schedule')) return 'schedules';
-        if (s.includes('incident')) return 'incident reports'; // Generic incident for Dir Ops
+      if (!subject) return 'general';
+      const s = subject.toLowerCase();
+      // Station Controller
+      if (s.includes('complaint')) return 'Passenger complain';
+      if (s.includes('roster')) return 'shift rosters';
+      if (s.includes('safety') && !s.includes('circular')) return 'safety updates';
+      if (s.includes('alert')) return 'incident alerts';
+      if (s.includes('revenue')) return 'revenue data';
+      // Depot Manager
+      if (s.includes('rolling stock') || s.includes('rs 102')) return 'Rolling Stock';
+      if (s.includes('job card')) return 'Job Cards';
+      if (s.includes('spare part') || s.includes('inventory')) return 'Spare parts';
+      if (s.includes('contractor')) return 'Contractor reports';
+      if (s.includes('depot safety')) return 'depot safety';
+      // Managing Director
+      if (s.includes('finance') || s.includes('financial')) return 'finance';
+      if (s.includes('operation')) return 'operations';
+      if (s.includes('project')) return 'projects';
+      if (s.includes('hr') || s.includes('employee survey')) return 'HR';
+      if (s.includes('regulation') || s.includes('policy')) return 'regulations';
+      // Director of Finance
+      if (s.includes('budget')) return 'budgets';
+      if (s.includes('invoice')) return 'invoices';
+      if (s.includes('purchase order') || s.includes('po request')) return 'purchase orders';
+      if (s.includes('vendor') || s.includes('contract')) return 'vendor contracts';
+      // Director of Operations
+      if (s.includes('maintenance')) return 'maintenance';
+      if (s.includes('circular')) return 'safety circulars';
+      if (s.includes('schedule')) return 'schedules';
+      if (s.includes('incident')) return 'incident reports'; // Generic incident for Dir Ops
 
-        return 'general'; // Default tag
+      return 'general'; // Default tag
     }
 
     async function fetchEmailsFromAPI(role) {
@@ -586,32 +581,32 @@
 
     // --- REAL-TIME REFRESH ---
     async function refreshMessages() {
-        if (!currentUser) return; // Don't refresh if no user is logged in
-        console.log("Checking for new emails...");
+      if (!currentUser) return; // Don't refresh if no user is logged in
+      console.log("Checking for new emails...");
 
-        const fetchedEmails = await fetchEmailsFromAPI(currentUser.role);
-        
-        // Only update if the number of emails has changed to avoid unnecessary re-renders
-        if (fetchedEmails && fetchedEmails.length !== currentMessages.length) {
-            console.log("New email count differs. Updating view.");
-            
-            // Preserve the read status of messages that still exist
-            const readStatusMap = new Map();
-            currentMessages.forEach(msg => {
-                if (msg.isRead) {
-                    readStatusMap.set(msg.subject, true); // Using subject as a simple key
-                }
-            });
+      const fetchedEmails = await fetchEmailsFromAPI(currentUser.role);
 
-            const updatedMessages = fetchedEmails.map(email => ({
-                ...email,
-                isRead: readStatusMap.has(email.subject)
-            }));
+      // Only update if the number of emails has changed to avoid unnecessary re-renders
+      if (fetchedEmails && fetchedEmails.length !== currentMessages.length) {
+        console.log("New email count differs. Updating view.");
 
-            currentMessages = updatedMessages;
-            applyFilters(); // Re-renders the message cards
-            setupDashboardView(); // Updates the counts in the dashboard
-        }
+        // Preserve the read status of messages that still exist
+        const readStatusMap = new Map();
+        currentMessages.forEach(msg => {
+          if (msg.isRead) {
+            readStatusMap.set(msg.subject, true); // Using subject as a simple key
+          }
+        });
+
+        const updatedMessages = fetchedEmails.map(email => ({
+          ...email,
+          isRead: readStatusMap.has(email.subject)
+        }));
+
+        currentMessages = updatedMessages;
+        applyFilters(); // Re-renders the message cards
+        setupDashboardView(); // Updates the counts in the dashboard
+      }
     }
 
     // --- UI & Navigation ---
@@ -791,11 +786,11 @@
 
     // --- Message Filtering & Display ---
     const populateFilters = () => {
-        const tagsForRole = roleSpecificTags[currentUser.role] || roleSpecificTags.default;
-        tagFilter.innerHTML = tagsForRole.map(tag => `<option value="${tag}">${tag}</option>`).join("");
-        
-        const priorities = ["All", "High", "Medium", "Low"];
-        priorityFilter.innerHTML = priorities.map(p => `<option value="${p}">${p}</option>`).join("");
+      const tagsForRole = roleSpecificTags[currentUser.role] || roleSpecificTags.default;
+      tagFilter.innerHTML = tagsForRole.map(tag => `<option value="${tag}">${tag}</option>`).join("");
+
+      const priorities = ["All", "High", "Medium", "Low"];
+      priorityFilter.innerHTML = priorities.map(p => `<option value="${p}">${p}</option>`).join("");
     };
 
     const applyFilters = () => {
@@ -844,13 +839,49 @@
       const priorityColors = { High: "bg-red-500", Medium: "bg-yellow-500", Low: "bg-green-500" };
       modalPriorityTag.textContent = msg.priority;
       modalPriorityTag.className = `text-xs font-semibold uppercase rounded-full px-2 py-1 text-white ${priorityColors[msg.priority] || 'bg-gray-400'}`;
-      attachmentSummaryEl.textContent = "";
-      summarizeAttachmentBtn.disabled = true;
-      attachmentUploadInput.value = "";
-      attachmentFile = null;
+      summaryEl.textContent = "";
       fullMessageModal.classList.remove("hidden");
     };
     closeModalBtn.addEventListener("click", () => fullMessageModal.classList.add("hidden"));
+
+    // --- AI SUMMARIZATION ---
+    async function summarizeWithAI(textToSummarize) {
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${GEMINI_API_KEY}`;
+        const payload = {
+            contents: [{
+                parts: [{
+                    text: `Summarize the following email text in three brief, clear bullet points, focusing on the main topic and any required actions:\n\n---\n\n${textToSummarize}`
+                }]
+            }]
+        };
+
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (!response.ok) {
+                const errorBody = await response.json();
+                console.error("AI API Error:", errorBody);
+                throw new Error(`API Error: ${errorBody.error.message}`);
+            }
+
+            const result = await response.json();
+            const summary = result.candidates?.[0]?.content?.parts?.[0]?.text;
+            
+            if (!summary) {
+                 throw new Error("Could not extract summary from AI response.");
+            }
+            return summary;
+
+        } catch (error) {
+            console.error("Summarization failed:", error);
+            return `Error: Could not generate summary. ${error.message}`;
+        }
+    }
+
 
     // --- Forward & Summarize Logic ---
     forwardMessageBtn.addEventListener('click', () => {
@@ -871,18 +902,15 @@
       }
     });
 
-    attachmentUploadInput.addEventListener("change", (e) => {
-      attachmentFile = e.target.files.length > 0 ? e.target.files[0] : null;
-      summarizeAttachmentBtn.disabled = !attachmentFile;
+    summarizeEmailBtn.addEventListener("click", async () => {
+      const emailContent = modalContent.textContent;
+      if (!emailContent) return;
+      summaryEl.textContent = "Generating summary with AI...";
+      
+      const summary = await summarizeWithAI(emailContent);
+      summaryEl.textContent = summary;
     });
 
-    summarizeAttachmentBtn.addEventListener("click", () => {
-      if (!attachmentFile) return;
-      attachmentSummaryEl.textContent = "Summarizing attachment...";
-      setTimeout(() => {
-        attachmentSummaryEl.textContent = `Summary of "${attachmentFile.name}":\n- Critical updates for the department.\n- Key action items in section 3.\n- Response required by EOD Friday.`;
-      }, 1500);
-    });
 
     // --- Analytics & Problem Solver Charts ---
     const chartConfig = {
