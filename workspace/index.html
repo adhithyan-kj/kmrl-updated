@@ -480,6 +480,15 @@
 
     const stationLocations = ["Aluva", "Kalamassery", "Maharajas College", "Vyttila", "Petta"];
     const depotLocations = ["Muttom", "Thripunithura", "Kakkanad", "Petta", "Aluva Yard"];
+    
+    const roleSpecificTags = {
+      'Station Controller': ["All", "Passenger complain", "shift rosters", "safety updates", "incident alerts", "revenue data"],
+      'Depot Manager': ["All", "Rolling Stock", "Job Cards", "Spare parts", "Contractor reports", "depot safety"],
+      'Managing Director': ["All", "finance", "operations", "projects", "HR", "safety", "regulations"],
+      'Director of Finance': ["All", "budgets", "invoices", "purchase orders", "vendor contracts"],
+      'Director of Operations': ["All", "maintenance", "safety circulars", "schedules", "incident reports"],
+      'default': ["All", "general", "update", "report"]
+    };
 
     const recentActivities = {
       'Managing Director': [
@@ -504,8 +513,43 @@
       'Depot Manager': ["Assign team for Rolling Stock 102 monthly inspection", "Review and verify track cleaning contractor's report", "Schedule team meeting to discuss depot safety audit results"],
       'default': ["Complete mandatory annual training", "Update personal contact information in HR portal"]
     };
+    
+    // --- DATA FETCHING & TAGGING ---
+    function assignTag(subject) {
+        if (!subject) return 'general';
+        const s = subject.toLowerCase();
+        // Station Controller
+        if (s.includes('complaint')) return 'Passenger complain';
+        if (s.includes('roster')) return 'shift rosters';
+        if (s.includes('safety') && !s.includes('circular')) return 'safety updates';
+        if (s.includes('alert')) return 'incident alerts';
+        if (s.includes('revenue')) return 'revenue data';
+        // Depot Manager
+        if (s.includes('rolling stock') || s.includes('rs 102')) return 'Rolling Stock';
+        if (s.includes('job card')) return 'Job Cards';
+        if (s.includes('spare part') || s.includes('inventory')) return 'Spare parts';
+        if (s.includes('contractor')) return 'Contractor reports';
+        if (s.includes('depot safety')) return 'depot safety';
+        // Managing Director
+        if (s.includes('finance') || s.includes('financial')) return 'finance';
+        if (s.includes('operation')) return 'operations';
+        if (s.includes('project')) return 'projects';
+        if (s.includes('hr') || s.includes('employee survey')) return 'HR';
+        if (s.includes('regulation') || s.includes('policy')) return 'regulations';
+        // Director of Finance
+        if (s.includes('budget')) return 'budgets';
+        if (s.includes('invoice')) return 'invoices';
+        if (s.includes('purchase order') || s.includes('po request')) return 'purchase orders';
+        if (s.includes('vendor') || s.includes('contract')) return 'vendor contracts';
+        // Director of Operations
+        if (s.includes('maintenance')) return 'maintenance';
+        if (s.includes('circular')) return 'safety circulars';
+        if (s.includes('schedule')) return 'schedules';
+        if (s.includes('incident')) return 'incident reports'; // Generic incident for Dir Ops
 
-    // --- DATA FETCHING ---
+        return 'general'; // Default tag
+    }
+
     async function fetchEmailsFromAPI(role) {
       console.log(`Fetching emails for role: ${role} from local server...`);
       try {
@@ -530,8 +574,7 @@
             isRead: false,
             type: 'Email',
             priority: priority,
-            tag: email.subject ? (email.subject.toLowerCase().includes('maintenance') ? 'maintenance' :
-              email.subject.toLowerCase().includes('safety') ? 'safety' : 'general') : 'general'
+            tag: assignTag(email.subject)
           };
         });
       } catch (error) {
@@ -747,10 +790,12 @@
     });
 
     // --- Message Filtering & Display ---
-    const getUniqueValues = (key) => ["All", ...new Set(currentMessages.map(msg => msg[key]))];
     const populateFilters = () => {
-      tagFilter.innerHTML = getUniqueValues('tag').map(tag => `<option value="${tag}">${tag}</option>`).join("");
-      priorityFilter.innerHTML = getUniqueValues('priority').map(p => `<option value="${p}">${p}</option>`).join("");
+        const tagsForRole = roleSpecificTags[currentUser.role] || roleSpecificTags.default;
+        tagFilter.innerHTML = tagsForRole.map(tag => `<option value="${tag}">${tag}</option>`).join("");
+        
+        const priorities = ["All", "High", "Medium", "Low"];
+        priorityFilter.innerHTML = priorities.map(p => `<option value="${p}">${p}</option>`).join("");
     };
 
     const applyFilters = () => {
