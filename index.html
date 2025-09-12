@@ -548,7 +548,7 @@
     async function fetchEmailsFromAPI(role) {
       console.log(`Fetching emails for role: ${role} from local server...`);
       try {
-        const response = await fetch('https://0c55027c3d8a.ngrok-free.app/api/emails');
+        const response = await fetch('http://localhost:3000/api/emails');
         if (!response.ok) {
           const errorBody = await response.text();
           throw new Error(`HTTP error! Status: ${response.status}, Body: ${errorBody}`);
