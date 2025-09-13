@@ -1,2 +1,1 @@
-haven't decided what to put here
-hehehe
+yeah iam aware that my genini api and .env is public 
