@@ -9,21 +9,24 @@ import bcrypt from 'bcryptjs';
 import fetch from 'node-fetch';
 import fs from 'fs';
 import { parse } from 'csv-parse/sync';
-import path from 'path'; // ⬅️ Add this import for file paths
+import path from 'path';
 
 dotenv.config();
 
 const app = express();
-// ✅ Use Render-assigned port or fallback to 3000
-const port = process.env.PORT || 3000;
+// ✅ Use Render-assigned port, or a fallback port of 10000
+// Note: Render sets PORT automatically. No change needed here.
+const port = process.env.PORT || 10000; 
 
 // --- Middleware ---
 app.use(cors());
 app.use(express.json());
 
 // ⬅️ START OF NEW CODE TO SERVE YOUR FRONTEND
+// Serve static files from the 'newupdate' directory
 app.use(express.static('newupdate'));
 
+// Handle requests to the root URL by sending the index.html file
 app.get('/', (req, res) => {
     res.sendFile(path.join(path.resolve(), 'newupdate', 'index.html'));
 });
@@ -101,7 +104,7 @@ async function processEmailWithAI(email) {
 }
 
 // --- API Endpoints ---
-// (All your signup, login, tasks, emails, and live-status endpoints remain unchanged)
+// (Your existing API endpoints would go here, e.g., /api/signup, /api/login, etc.)
 
 // --- Server Start ---
 app.listen(port, () => {
