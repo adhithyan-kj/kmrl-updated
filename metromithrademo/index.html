@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Metro Mithra - Demo</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://unpkg.com/lucide@0.292.0/dist/umd/lucide.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Cossette+Titre&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+
+  <style>
+    .scrollbar-thin::-webkit-scrollbar { width: 6px; }
+    .scrollbar-thin::-webkit-scrollbar-track { background: #1e293b; }
+    .scrollbar-thin::-webkit-scrollbar-thumb { background-color: #4f46e5; border-radius: 3px; }
+    .truncate-3-lines { display: -webkit-box; -webkit-line-clamp: 3; line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; }
+    .main-view { transition: opacity 0.3s ease-in-out; }
+    .font-title { font-family: 'Cossette Titre', sans-serif; }
+    body { font-family: 'Inter', sans-serif; }
+    @keyframes fade-in-up { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+    .animate-fade-in-up { animation: fade-in-up 0.5s ease-out forwards; }
+  </style>
+</head>
+
+<body class="bg-slate-900 text-slate-200 min-h-screen flex flex-col antialiased">
+
+  <div id="loading-overlay" class="fixed inset-0 bg-slate-900 bg-opacity-80 backdrop-blur-sm flex items-center justify-center hidden z-[100] text-white">
+      <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="currentColor" class="animate-spin text-indigo-500" viewBox="0 0 16 16"><path d="M11.534 7h3.932a.25.25 0 0 1 .192.41l-1.966 2.36a.25.25 0 0 1-.384 0l-1.966-2.36a.25.25 0 0 1 .192-.41zm-11 2h3.932a.25.25 0 0 0 .192-.41L2.692 6.23a.25.25 0 0 0-.384 0L.342 8.59A.25.25 0 0 0 .534 9z"/><path fill-rule="evenodd" d="M8 3c-1.552 0-2.94.707-3.857 1.818a.5.5 0 1 1-.771-.636A6.002 6.002 0 0 1 13.917 7H12.9A5.002 5.002 0 0 0 8 3zM3.1 9a5.002 5.002 0 0 0 8.757 2.182.5.5 0 1 1 .771.636A6.002 6.002 0 0 1 2.083 9H3.1z"/></svg>
+  </div>
+
+  <div id="login-screen" class="min-h-screen flex items-center justify-center p-4 bg-slate-900 bg-[url('./img.jpg')] bg-cover bg-center bg-blend-multiply bg-fixed">
+      <div class="w-full max-w-5xl animate-fade-in-up"><div class="flex bg-slate-900/50 backdrop-blur-xl rounded-2xl shadow-2xl shadow-black/30 overflow-hidden border border-slate-700"><div class="w-full lg:w-1/2 p-8 sm:p-12 flex flex-col justify-center">
+        <h1 class="text-5xl font-bold font-title text-slate-50 mb-8 text-center">METRO MITHRA</h1>
+        
+        <div id="role-selection-step">
+            <h2 class="text-xl font-bold text-slate-100 mb-2">Select Your Role</h2>
+            <p class="text-slate-400 mb-6">Choose your department and position to begin.</p>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-slate-300 text-sm font-bold mb-2" for="role-type">Role Type</label>
+                    <select id="role-type" class="appearance-none border border-slate-600 bg-slate-800/50 rounded-xl w-full py-3 px-4 text-slate-200 leading-tight focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all">
+                        <option value="">Select your role type</option>
+                        <option value="Central Command">Central Command</option>
+                        <option value="Field Units">Field Units</option>
+                    </select>
+                </div>
+                <div id="central-command-roles" class="hidden">
+                    <label class="block text-slate-300 text-sm font-bold mb-2" for="central-command-role">Role in Central Command</label>
+                    <select id="central-command-role" class="appearance-none border border-slate-600 bg-slate-800/50 rounded-xl w-full py-3 px-4 text-slate-200 leading-tight focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all">
+                        <option value="">Select your role</option>
+                        <option value="Managing Director">Managing Director</option>
+                        <option value="Director of Finance">Director of Finance</option>
+                        <option value="Director of Operations">Director of Operations</option>
+                    </select>
+                </div>
+                <div id="field-units-roles" class="hidden">
+                    <label class="block text-slate-300 text-sm font-bold mb-2" for="field-unit-role">Role in Field Units</label>
+                    <select id="field-unit-role" class="appearance-none border border-slate-600 bg-slate-800/50 rounded-xl w-full py-3 px-4 text-slate-200 leading-tight focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all">
+                        <option value="">Select your role</option>
+                        <option value="Station Controller">Station Controller</option>
+                        <option value="Depot Manager">Depot Manager</option>
+                    </select>
+                </div>
+                <div id="field-units-location" class="hidden">
+                    <label class="block text-slate-300 text-sm font-bold mb-2" for="field-unit-location">Field Location</label>
+                    <select id="field-unit-location" class="appearance-none border border-slate-600 bg-slate-800/50 rounded-xl w-full py-3 px-4 text-slate-200 leading-tight focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all">
+                        <option value="">Select your location</option>
+                    </select>
+                </div>
+            </div>
+            <button id="next-btn" class="mt-8 w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 px-4 rounded-xl focus:outline-none focus:shadow-outline transition-all duration-150 transform hover:scale-105">Proceed</button>
+        </div>
+        
+        <div id="auth-step" class="hidden">
+            <div class="flex items-center mb-6">
+                <button id="back-to-role-btn" class="text-indigo-400 hover:text-indigo-300"><i data-lucide="arrow-left" class="w-5 h-5"></i></button>
+                <div class="ml-4">
+                    <h2 class="text-xl font-bold text-slate-100">Demonstration Login</h2>
+                    <p class="text-slate-400 text-sm">for <span id="selected-role-display" class="font-semibold"></span></p>
+                </div>
+            </div>
+            <div class="p-4 bg-slate-800/50 border border-slate-700 rounded-xl text-center space-y-4">
+                <p class="text-slate-300">This is a **demo** version of the application. The final version features a secure, token-based authentication system managed by an administrator.</p>
+                <p class="text-slate-400 text-sm">Click below to log in with a sample user.</p>
+                <button id="demo-login-btn" class="w-full bg-green-600 hover:bg-green-500 text-white font-bold py-3 px-4 rounded-xl focus:outline-none focus:shadow-outline transition-all duration-150 transform hover:scale-105">Login as "Steve"</button>
+            </div>
+        </div>
+
+      </div><div class="hidden lg:flex w-1/2 items-center justify-center p-8 bg-black/20 rounded-r-2xl"><img src="./mm.png" class="max-w-sm opacity-80"></div></div></div>
+  </div>
+
+  <div id="dashboard-screen" class="hidden flex-1 flex">
+    <nav id="side-menu" class="w-72 bg-slate-900/80 backdrop-blur-sm border-r border-slate-800 text-slate-200 flex flex-col p-4 sticky top-0 h-screen">
+      <div class="flex items-center mb-10">
+        <div class="bg-indigo-500 rounded-full w-10 h-10 flex items-center justify-center mr-3 text-white">
+          <span class="font-bold text-lg">MM</span>
+        </div>
+        <h1 class="text-xl font-bold text-slate-50">Metro Mithra</h1>
+      </div>
+
+      <p class="px-3 text-xs uppercase text-slate-500 font-semibold mb-2">Main</p>
+      <ul class="flex flex-col space-y-2 mb-6">
+        <li><a href="#" data-view="dashboard-view" class="side-menu-link flex items-center p-3 rounded-lg hover:bg-slate-700/50 transition-all duration-200"><i data-lucide="layout-dashboard" class="mr-3 w-5 h-5 text-indigo-400"></i>Dashboard</a></li>
+        <li><a href="#" data-view="messages-view" class="side-menu-link flex items-center p-3 rounded-lg hover:bg-slate-700/50 transition-all duration-200"><i data-lucide="mail" class="mr-3 w-5 h-5 text-indigo-400"></i>Messages</a></li>
+        <li><a href="#" data-view="live-status-view" class="side-menu-link flex items-center p-3 rounded-lg hover:bg-slate-700/50 transition-all duration-200"><i data-lucide="train-track" class="mr-3 w-5 h-5 text-indigo-400"></i>Live Status</a></li>
+        <li><a href="#" data-view="analytics-view" class="side-menu-link flex items-center p-3 rounded-lg hover:bg-slate-700/50 transition-all duration-200"><i data-lucide="bar-chart-2" class="mr-3 w-5 h-5 text-indigo-400"></i>Analytics</a></li>
+      </ul>
+
+      <p class="px-3 text-xs uppercase text-slate-500 font-semibold mb-2">Problem Solvers</p>
+      <ul class="flex flex-col space-y-2">
+        <li><a href="#" data-view="passenger-flow-view" class="side-menu-link flex items-center p-3 rounded-lg hover:bg-slate-700/50 transition-all duration-200"><i data-lucide="users" class="mr-3 w-5 h-5 text-slate-400"></i>Passenger Flow</a></li>
+        <li><a href="#" data-view="maintenance-view" class="side-menu-link flex items-center p-3 rounded-lg hover:bg-slate-700/50 transition-all duration-200"><i data-lucide="wrench" class="mr-3 w-5 h-5 text-slate-400"></i>Predictive Maintenance</a></li>
+        <li><a href="#" data-view="energy-view" class="side-menu-link flex items-center p-3 rounded-lg hover:bg-slate-700/50 transition-all duration-200"><i data-lucide="bolt" class="mr-3 w-5 h-5 text-slate-400"></i>Energy Usage</a></li>
+        <li><a href="#" data-view="revenue-view" class="side-menu-link flex items-center p-3 rounded-lg hover:bg-slate-700/50 transition-all duration-200"><i data-lucide="dollar-sign" class="mr-3 w-5 h-5 text-slate-400"></i>Non-Fare Revenue</a></li>
+        <li><a href="#" data-view="incident-view" class="side-menu-link flex items-center p-3 rounded-lg hover:bg-slate-700/50 transition-all duration-200"><i data-lucide="siren" class="mr-3 w-5 h-5 text-slate-400"></i>Incident Response</a></li>
+      </ul>
+
+      <div class="mt-auto">
+        <button id="sign-out-btn" class="w-full bg-red-600/80 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg flex items-center justify-center transition-all duration-200 transform hover:scale-105">
+          <i data-lucide="log-out" class="mr-2"></i>Logout
+        </button>
+      </div>
+    </nav>
+    <main class="flex-1 p-6 overflow-y-auto scrollbar-thin">
+        <div id="dashboard-view" class="main-view">
+        <div class="bg-slate-800/50 border border-slate-700 p-6 rounded-xl shadow-lg mb-6 animate-fade-in-up"><h2 id="welcome-message" class="text-2xl font-bold text-slate-100">Welcome!</h2><p id="role-subtitle" class="text-slate-400">Your personalized dashboard.</p></div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+          <div class="bg-slate-800 border border-slate-700 p-6 rounded-xl shadow-lg animate-fade-in-up" style="animation-delay: 100ms;"><h3 class="text-lg font-semibold text-slate-400 mb-4">Key Metrics</h3><div class="space-y-4"><div class="flex justify-between items-baseline"><span class="text-slate-300">Total Documents</span><span id="metric-total-docs" class="font-bold text-3xl text-indigo-400">0</span></div><div class="flex justify-between items-baseline"><span class="text-slate-300">Unread Messages</span><span id="metric-unread" class="font-bold text-3xl text-yellow-400">0</span></div><div class="flex justify-between items-baseline"><span class="text-slate-300">Pending Tasks</span><span id="metric-pending" class="font-bold text-3xl text-red-400">0</span></div></div></div>
+          <div class="bg-slate-800 border border-slate-700 p-6 rounded-xl shadow-lg md:col-span-2 animate-fade-in-up" style="animation-delay: 200ms;"><h3 class="text-lg font-semibold text-slate-400 mb-4">Recent Activity</h3><ul id="recent-activity-list" class="space-y-3"><li class="text-slate-500">No recent activity.</li></ul></div>
+        </div>
+        <div class="bg-slate-800 border border-slate-700 p-6 rounded-xl shadow-lg animate-fade-in-up" style="animation-delay: 300ms;"><h3 class="text-lg font-semibold text-slate-400 mb-4">My Pending Tasks (Live)</h3><ul id="pending-tasks-list" class="space-y-3"><li class="text-slate-500">No pending tasks assigned to you.</li></ul></div>
+      </div>
+
+      <div id="messages-view" class="main-view hidden">
+        <h2 class="text-3xl font-bold text-slate-100 mb-6">Messages & Documents</h2>
+        <div class="bg-slate-800 border border-slate-700 p-4 rounded-xl shadow mb-6"><div class="flex flex-col sm:flex-row sm:items-center space-y-4 sm:space-y-0 sm:space-x-4"><div class="flex-1"><input type="text" id="search-input" placeholder="Search by subject, content, classification..." class="w-full px-4 py-2 bg-slate-700/50 border border-slate-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-150"/></div><div class="flex items-center space-x-4"><select id="tag-filter" class="px-4 py-2 bg-slate-700/50 border border-slate-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-150"><option value="All">All Classifications</option></select><select id="priority-filter" class="px-4 py-2 bg-slate-700/50 border border-slate-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-150"><option value="All">All Urgencies</option></select></div></div></div>
+        <div id="messages-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+      </div>
+      
+      <div id="live-status-view" class="main-view hidden">
+        <h2 class="text-3xl font-bold text-slate-100 mb-6">Live Schedule Tracker</h2>
+        <div id="train-cards-container" class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+          </div>
+      </div>
+      
+      <div id="analytics-view" class="main-view hidden"><h2 class="text-3xl font-bold text-slate-100 mb-6">Deep Dive Analytics</h2><div class="grid grid-cols-1 lg:grid-cols-3 gap-6"><div class="bg-slate-800 border border-slate-700 p-6 rounded-xl shadow-lg lg:col-span-2"><h3 class="text-lg font-semibold text-slate-300 mb-4">Monthly Message Activity</h3><div class="h-64"><canvas id="activity-chart"></canvas></div></div><div class="bg-slate-800 border border-slate-700 p-6 rounded-xl shadow-lg"><h3 class="text-lg font-semibold text-slate-300 mb-4">Messages by Priority</h3><div class="h-64"><canvas id="priority-chart"></canvas></div></div><div class="bg-slate-800 border border-slate-700 p-6 rounded-xl shadow-lg"><h3 class="text-lg font-semibold text-slate-300 mb-4">Message Type Distribution</h3><div class="h-64"><canvas id="type-chart"></canvas></div></div><div class="bg-slate-800 border border-slate-700 p-6 rounded-xl shadow-lg"><h3 class="text-lg font-semibold text-slate-300 mb-4">Read vs. Unread by Priority</h3><div class="h-64"><canvas id="read-unread-chart"></canvas></div></div><div class="bg-slate-800 border border-slate-700 p-6 rounded-xl shadow-lg"><h3 class="text-lg font-semibold text-slate-300 mb-4">Departmental Workload</h3><div class="h-64"><canvas id="workload-chart"></canvas></div></div></div></div>
+      <div id="passenger-flow-view" class="main-view hidden"><h2 class="text-3xl font-bold text-slate-100 mb-2">Passenger Flow Optimization</h2><p class="text-slate-400 mb-6">Analyze peak hours to adjust train frequency, reducing congestion.</p><div class="grid grid-cols-1 lg:grid-cols-2 gap-6"><div class="bg-slate-800 border border-slate-700 p-6 rounded-xl shadow-lg h-96"><h3 class="text-lg font-semibold text-slate-300 mb-4">Hourly Passenger Traffic (Weekday)</h3><canvas id="passenger-flow-chart"></canvas></div><div class="bg-slate-800 border border-slate-700 p-6 rounded-xl shadow-lg h-96"><h3 class="text-lg font-semibold text-slate-300 mb-4">Station Entry vs. Exit Counts</h3><canvas id="station-traffic-chart"></canvas></div></div></div>
+      <div id="maintenance-view" class="main-view hidden"><h2 class="text-3xl font-bold text-slate-100 mb-2">Predictive Maintenance</h2><p class="text-slate-400 mb-6">Monitor equipment health to predict failures and schedule maintenance proactively.</p><div class="grid grid-cols-1 lg:grid-cols-2 gap-6"><div class="bg-slate-800 border border-slate-700 p-6 rounded-xl shadow-lg h-96"><h3 class="text-lg font-semibold text-slate-300 mb-4">Brake System Health Score - Unit #102</h3><canvas id="maintenance-chart"></canvas></div><div class="bg-slate-800 border border-slate-700 p-6 rounded-xl shadow-lg h-96"><h3 class="text-lg font-semibold text-slate-300 mb-4">Component Failure Rate</h3><canvas id="component-failure-chart"></canvas></div></div></div>
+      <div id="energy-view" class="main-view hidden"><h2 class="text-3xl font-bold text-slate-100 mb-2">Energy Usage Monitoring</h2><p class="text-slate-400 mb-6">Track daily energy consumption against targets to identify anomalies.</p><div class="grid grid-cols-1 lg:grid-cols-2 gap-6"><div class="bg-slate-800 border border-slate-700 p-6 rounded-xl shadow-lg h-96"><h3 class="text-lg font-semibold text-slate-300 mb-4">Total Energy Consumption (MWh)</h3><canvas id="energy-chart"></canvas></div><div class="bg-slate-800 border border-slate-700 p-6 rounded-xl shadow-lg h-96"><h3 class="text-lg font-semibold text-slate-300 mb-4">Consumption by Sub-system</h3><canvas id="energy-breakdown-chart"></canvas></div></div></div>
+      <div id="revenue-view" class="main-view hidden"><h2 class="text-3xl font-bold text-slate-100 mb-2">Non-Fare Revenue Enhancement</h2><p class="text-slate-400 mb-6">Analyze revenue streams from sources other than tickets.</p><div class="grid grid-cols-1 lg:grid-cols-2 gap-6"><div class="bg-slate-800 border border-slate-700 p-6 rounded-xl shadow-lg h-96"><h3 class="text-lg font-semibold text-slate-300 mb-4">Non-Fare Revenue Sources - Q2 2025</h3><canvas id="revenue-chart"></canvas></div><div class="bg-slate-800 border border-slate-700 p-6 rounded-xl shadow-lg h-96"><h3 class="text-lg font-semibold text-slate-300 mb-4">Monthly Revenue Growth</h3><canvas id="revenue-growth-chart"></canvas></div></div></div>
+      <div id="incident-view" class="main-view hidden"><h2 class="text-3xl font-bold text-slate-100 mb-2">Incident Response Time Analysis</h2><p class="text-slate-400 mb-6">Measure response times to improve safety protocols.</p><div class="grid grid-cols-1 lg:grid-cols-2 gap-6"><div class="bg-slate-800 border border-slate-700 p-6 rounded-xl shadow-lg h-96"><h3 class="text-lg font-semibold text-slate-300 mb-4">Average Response Time by Type (Mins)</h3><canvas id="incident-chart"></canvas></div><div class="bg-slate-800 border border-slate-700 p-6 rounded-xl shadow-lg h-96"><h3 class="text-lg font-semibold text-slate-300 mb-4">Incidents by Time of Day</h3><canvas id="incident-time-chart"></canvas></div></div></div>
+    </main>
+  </div>
+  
+  <div id="full-message-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 hidden z-50"><div class="bg-slate-800 border border-slate-700 rounded-xl shadow-lg w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col"><div class="flex justify-between items-center p-4 border-b border-slate-700"><h3 id="modal-title" class="text-lg font-bold text-slate-100">Message Details</h3><button id="close-modal-btn" class="text-slate-400 hover:text-white text-xl font-bold">&times;</button></div><div class="p-6 overflow-y-auto flex-1 scrollbar-thin"><div id="modal-ai-summary" class="mb-4 p-4 bg-indigo-500/10 border border-indigo-500/20 rounded-lg"><h4 class="text-md font-bold text-indigo-300 mb-2">AI Analysis</h4><p class="text-sm text-slate-300"><span class="font-semibold text-indigo-400">Classification:</span> <span id="modal-classification"></span></p><p class="text-sm text-slate-300"><span class="font-semibold text-indigo-400">Urgency:</span> <span id="modal-urgency"></span></p><p class="text-sm text-slate-300"><span class="font-semibold text-indigo-400">Action:</span> <span id="modal-action"></span></p></div><h4 class="text-md font-semibold text-slate-300 mb-2">Original Message Content:</h4><p id="modal-content" class="text-slate-300 whitespace-pre-line mb-4"></p><div class="mt-4 p-4 bg-slate-900/50 rounded-xl border border-slate-700"><h4 class="text-md font-bold text-slate-200 mb-2">AI Summarizer</h4><div class="flex items-center space-x-2 mb-4"><button id="summarize-email-btn" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2 px-4 rounded-xl text-sm transition-all duration-200">Generate Bullet-Point Summary</button></div><div id="summary-section"><p id="summary-el" class="text-slate-400 text-sm whitespace-pre-line"></p></div></div></div><div class="p-4 bg-slate-800/50 border-t border-slate-700"><button id="forward-message-btn" class="bg-green-600 hover:bg-green-500 text-white font-bold py-2 px-4 rounded-xl w-full sm:w-auto transition-all">Forward Message</button></div></div></div>
+  <div id="forward-message-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 hidden z-50"><div class="bg-slate-800 border border-slate-700 rounded-xl shadow-lg w-full max-w-md"><div class="flex justify-between items-center p-4 border-b border-slate-700"><h3 class="text-lg font-bold text-slate-100">Forward Message</h3><button id="close-forward-modal-btn" class="text-slate-400 hover:text-white text-xl font-bold">&times;</button></div><div class="p-6"><p class="mb-4 text-slate-300">Select a role to forward this message to:</p><select id="forward-role-select" class="w-full p-2 bg-slate-700 border border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"></select></div><div class="p-4 bg-slate-900/50 border-t border-slate-700 text-right"><button id="send-forward-btn" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2 px-4 rounded-xl transition-all">Send Forward</button></div></div></div>
+  <div id="message-box" class="fixed top-4 right-4 z-50 p-4 bg-slate-700 border border-slate-600 rounded-xl shadow-lg hidden"><div class="flex justify-between items-center mb-2"><h4 id="message-box-title" class="font-bold text-lg text-slate-100"></h4><button id="close-message-box" class="text-slate-300 hover:text-white">&times;</button></div><p id="message-box-content" class="text-sm text-slate-300"></p></div>
+
+  <script>
+    // --- DOM Elements ---
+    const loginScreen = document.getElementById("login-screen");
+    const dashboardScreen = document.getElementById("dashboard-screen");
+    const loadingOverlay = document.getElementById("loading-overlay");
+    const roleSelectionStep = document.getElementById("role-selection-step"); 
+    const roleTypeSelect = document.getElementById("role-type"); 
+    const centralCommandRolesDiv = document.getElementById("central-command-roles"); 
+    const centralCommandRoleSelect = document.getElementById("central-command-role"); 
+    const fieldUnitsRolesDiv = document.getElementById("field-units-roles"); 
+    const fieldUnitRoleSelect = document.getElementById("field-unit-role"); 
+    const fieldUnitsLocationDiv = document.getElementById("field-units-location"); 
+    const fieldUnitLocationSelect = document.getElementById("field-unit-location"); 
+    const nextBtn = document.getElementById("next-btn"); 
+    const authStep = document.getElementById("auth-step"); 
+    const selectedRoleDisplay = document.getElementById("selected-role-display"); 
+    const backToRoleBtn = document.getElementById("back-to-role-btn");
+    const demoLoginBtn = document.getElementById("demo-login-btn");
+    
+    const trainCardsContainer = document.getElementById('train-cards-container');
+    const signOutBtn = document.getElementById("sign-out-btn"); const messagesContainer = document.getElementById("messages-container"); const searchInput = document.getElementById("search-input"); const tagFilter = document.getElementById("tag-filter"); const priorityFilter = document.getElementById("priority-filter"); const sideMenuLinks = document.querySelectorAll(".side-menu-link"); const mainViews = document.querySelectorAll(".main-view"); const welcomeMessage = document.getElementById("welcome-message"); const roleSubtitle = document.getElementById("role-subtitle"); const metricTotalDocs = document.getElementById('metric-total-docs'); const metricUnread = document.getElementById('metric-unread'); const metricPending = document.getElementById('metric-pending'); const recentActivityList = document.getElementById('recent-activity-list'); const pendingTasksList = document.getElementById('pending-tasks-list'); const fullMessageModal = document.getElementById("full-message-modal"); const modalTitle = document.getElementById("modal-title"); const modalContent = document.getElementById("modal-content"); const modalClassification = document.getElementById("modal-classification"); const modalUrgency = document.getElementById("modal-urgency"); const modalAction = document.getElementById("modal-action"); const closeModalBtn = document.getElementById("close-modal-btn"); const summarizeEmailBtn = document.getElementById("summarize-email-btn"); const summaryEl = document.getElementById("summary-el"); const forwardMessageBtn = document.getElementById('forward-message-btn'); const forwardMessageModal = document.getElementById('forward-message-modal'); const closeForwardModalBtn = document.getElementById('close-forward-modal-btn'); const forwardRoleSelect = document.getElementById('forward-role-select'); const sendForwardBtn = document.getElementById('send-forward-btn'); const messageBox = document.getElementById("message-box"); const messageBoxTitle = document.getElementById("message-box-title"); const messageBoxContent = document.getElementById("message-box-content"); const closeMessageBoxBtn = document.getElementById("close-message-box");
+    
+    // --- State Variables ---
+    let currentUser = null; let currentMessages = []; let currentUserTasks = []; let liveTrainData = []; let messageToForward = null; let initializedCharts = {}; let dataRefreshInterval = null; let selectedRoleDetails = {};
+    const GEMINI_API_KEY = "AIzaSyBaSJz-8Ma99Whgh7OcqBAuWx9AlysEsoU";
+
+    // --- Static Data ---
+    const stationLocations = ["Aluva", "Kalamassery", "Maharajas College", "Vyttila", "Petta"]; const depotLocations = ["Muttom", "Thripunithura", "Kakkanad", "Petta", "Aluva Yard"];
+    const recentActivities = { 'Managing Director': [ { text: "Reviewed 'Q2 Finance Report'", status: 'completed' }, { text: "Uploaded 'Safety Audit Report 2024'", status: 'completed' }, { text: "New message from Finance: 'Budget for Maintenance'", status: 'new' }, { text: "Pending approval for 'Vendor Invoice #456'", status: 'pending' }, ], 'default': [ { text: "Daily report generated successfully", status: 'completed' }, { text: "System health check passed", status: 'completed' }, { text: "New message: 'Weekly Safety Bulletin'", status: 'new' }, { text: "Pending review of shift rosters", status: 'pending' }, ] };
+    const classificationsByRole = {
+        'Managing Director': [ 'Finance', 'Operations', 'Projects', 'IAR', 'Safety', 'Regulatory' ],
+        'Director of Finance': [ 'Budgets', 'Invoices', 'Purchase Orders', 'Vendor Contracts' ],
+        'Director of Operations': [ 'Maintenance Reports', 'Safety Circulars', 'Schedules', 'Incident Reports' ],
+        'Station Controller': [ 'Passenger Complaints', 'Shift Rosters', 'Safety Updates', 'Incident Alerts', 'Revenue Data' ],
+        'Depot Manager': [ 'Rolling Stock Maintenance', 'Job Cards', 'Spare Parts Availability', 'Contractor Reports', 'Depot Safety Memos' ],
+        'default': [ 'Request', 'Notification', 'Report', 'Alert', 'Unclassified' ]
+    };
+    
+    // --- UI & Animation Helpers ---
+    function showMessageBox(title, content) { messageBoxTitle.textContent = title; messageBoxContent.textContent = content; messageBox.classList.remove("hidden"); setTimeout(() => messageBox.classList.add('hidden'), 5000); }
+    closeMessageBoxBtn.addEventListener("click", () => messageBox.classList.add("hidden"));
+    function animateChildren(container) { if(!container) return; const children = container.querySelectorAll('.animate-fade-in-up'); children.forEach((child, index) => { child.style.animationDelay = `${index * 100}ms`; }); }
+    
+    // --- DEMO Authentication Flow ---
+    roleTypeSelect.addEventListener("change", () => { centralCommandRolesDiv.classList.toggle("hidden", roleTypeSelect.value !== "Central Command"); fieldUnitsRolesDiv.classList.toggle("hidden", roleTypeSelect.value !== "Field Units"); fieldUnitsLocationDiv.classList.add("hidden"); });
+    fieldUnitRoleSelect.addEventListener("change", () => { const selectedRole = fieldUnitRoleSelect.value; const showLocations = selectedRole === "Station Controller" || selectedRole === "Depot Manager"; fieldUnitsLocationDiv.classList.toggle("hidden", !showLocations); if (showLocations) { const locations = selectedRole === "Station Controller" ? stationLocations : depotLocations; fieldUnitLocationSelect.innerHTML = "<option value=''>Select location</option>" + locations.map(loc => `<option value="${loc}">${loc}</option>`).join(""); } });
+    nextBtn.addEventListener("click", () => { const roleType = roleTypeSelect.value; let specificRole = "", location = ""; if (roleType === "Central Command") specificRole = centralCommandRoleSelect.value; else if (roleType === "Field Units") { specificRole = fieldUnitRoleSelect.value; location = fieldUnitLocationSelect.value; } if (!roleType || !specificRole) return showMessageBox("Validation Error", "Please select your role."); selectedRoleDetails = { roleType, role: specificRole, location }; selectedRoleDisplay.textContent = location ? `${specificRole} at ${location}` : specificRole; roleSelectionStep.classList.add("hidden"); authStep.classList.remove("hidden"); });
+    backToRoleBtn.addEventListener("click", () => { authStep.classList.add("hidden"); roleSelectionStep.classList.remove("hidden"); });
+    
+    demoLoginBtn.addEventListener("click", async () => {
+        loadingOverlay.classList.remove('hidden');
+        // Create a mock user object
+        const demoUser = {
+            name: "Steve",
+            role: selectedRoleDetails.role,
+            roleType: selectedRoleDetails.roleType,
+            location: selectedRoleDetails.location || null
+        };
+        localStorage.setItem('kmrlUser', JSON.stringify(demoUser));
+        await setupAppForUser(demoUser);
+    });
+
+    // --- Dashboard Setup & Logic ---
+    async function setupAppForUser(user) {
+      currentUser = user; loadingOverlay.classList.remove('hidden');
+      [currentMessages, currentUserTasks, liveTrainData] = await Promise.all([ fetchEmailsFromAPI(), fetchTasksForUser(currentUser.role), fetchLiveStatus() ]);
+      loadingOverlay.classList.add("hidden"); loginScreen.classList.add("hidden"); dashboardScreen.classList.remove("hidden");
+      setupDashboardView(); 
+      populateFilters(); 
+      displayMessages(currentMessages); 
+      displayTrainStatus(liveTrainData);
+      showView('dashboard-view'); 
+      lucide.createIcons();
+      if (dataRefreshInterval) clearInterval(dataRefreshInterval);
+      dataRefreshInterval = setInterval(refreshData, 30000);
+    }
+
+    signOutBtn.addEventListener("click", () => { 
+      if (dataRefreshInterval) clearInterval(dataRefreshInterval); 
+      localStorage.removeItem('kmrlUser'); 
+      currentUser = null; 
+      currentMessages = []; 
+      currentUserTasks = []; 
+      liveTrainData = []; 
+      dashboardScreen.classList.add("hidden"); 
+      loginScreen.classList.remove("hidden"); 
+      // Reset to the beginning of the login flow
+      authStep.classList.add("hidden"); 
+      roleSelectionStep.classList.remove("hidden"); 
+      roleTypeSelect.value = ""; 
+      centralCommandRolesDiv.classList.add("hidden"); 
+      fieldUnitsRolesDiv.classList.add("hidden");
+      initializedCharts = {}; 
+      Object.values(Chart.instances).forEach(chart => chart.destroy()); 
+    });
+
+    const setupDashboardView = () => { welcomeMessage.innerHTML = `Welcome, <span class="font-bold text-slate-50">${currentUser.name}!</span>`; roleSubtitle.textContent = `Your personalized dashboard for the ${currentUser.role} role.`; metricTotalDocs.textContent = currentMessages.length; metricUnread.textContent = currentMessages.filter(msg => !msg.isRead).length; metricPending.textContent = currentUserTasks.length; recentActivityList.innerHTML = ''; const activities = recentActivities[currentUser.role] || recentActivities.default; activities.forEach(act => { const li = document.createElement('li'); li.className = 'flex items-center text-sm text-slate-300 p-2 rounded-lg hover:bg-slate-700/50'; const icons = { completed: '<i data-lucide="check-circle-2" class="w-5 h-5 mr-3 text-green-500"></i>', new: '<i data-lucide="mail" class="w-5 h-5 mr-3 text-blue-500"></i>', pending: '<i data-lucide="clock" class="w-5 h-5 mr-3 text-yellow-500"></i>' }; li.innerHTML = `${icons[act.status]} ${act.text}`; recentActivityList.appendChild(li); }); populatePendingTasks(); lucide.createIcons(); };
+    function populatePendingTasks() { pendingTasksList.innerHTML = ''; if(currentUserTasks.length === 0) { pendingTasksList.innerHTML = '<li class="text-slate-500">No pending tasks.</li>'; return; } currentUserTasks.forEach(task => { const li = document.createElement('li'); li.className = 'flex items-center justify-between text-slate-300 py-2 border-b border-slate-700'; li.innerHTML = `<div><input type="checkbox" class="h-4 w-4 rounded border-slate-500 bg-slate-700 text-indigo-500 focus:ring-indigo-500 mr-3"/><span>${task.title}</span><p class="text-xs text-slate-400 ml-7">${task.description}</p></div><span class="text-xs font-semibold px-2 py-1 rounded-full bg-yellow-500/10 text-yellow-300">${task.status}</span>`; pendingTasksList.appendChild(li); }); }
+
+    // --- Message Display & Filtering ---
+    const populateFilters = () => {
+        const relevantClassifications = classificationsByRole[currentUser.role] || classificationsByRole.default;
+        tagFilter.innerHTML = '<option value="All">All Classifications</option>' + relevantClassifications.map(c => `<option value="${c}">${c}</option>`).join("");
+        const urgencies = [...new Set(currentMessages.map(msg => msg.ai_analysis?.urgency).filter(Boolean))];
+        priorityFilter.innerHTML = '<option value="All">All Urgencies</option>' + urgencies.map(u => `<option value="${u}">${u}</option>`).join("");
+    };
+
+    const applyFilters = () => { const searchTerm = searchInput.value.toLowerCase(); const selectedClass = tagFilter.value; const selectedUrgency = priorityFilter.value; const filtered = currentMessages.filter(msg => { const analysis = msg.ai_analysis; const email = msg.original_email; const searchMatch = (email.subject.toLowerCase().includes(searchTerm) || email.body.toLowerCase().includes(searchTerm) || (analysis && analysis.classification.toLowerCase().includes(searchTerm))); const classMatch = (selectedClass === "All" || (analysis && analysis.classification === selectedClass)); const urgencyMatch = (selectedUrgency === "All" || (analysis && analysis.urgency === selectedUrgency)); return searchMatch && classMatch && urgencyMatch; }); displayMessages(filtered); };
+    searchInput.addEventListener("input", applyFilters); tagFilter.addEventListener("change", applyFilters); priorityFilter.addEventListener("change", applyFilters);
+    const displayMessages = (messagesToDisplay) => { messagesContainer.innerHTML = ""; if (messagesToDisplay.length === 0) { messagesContainer.innerHTML = '<p class="text-center text-slate-500 col-span-full">No messages found.</p>'; return; } messagesToDisplay.forEach((msg, index) => { const card = document.createElement("div"); const analysis = msg.ai_analysis || {}; const email = msg.original_email; const urgencyColors = { High: "bg-red-500/80", Medium: "bg-yellow-500/80", Low: "bg-green-500/80" }; const urgencyBorder = { High: "border-red-500", Medium: "border-yellow-500", Low: "border-green-500" }; card.className = `bg-slate-800 border border-slate-700 rounded-xl p-6 cursor-pointer hover:bg-slate-700/50 transition-all duration-200 flex flex-col justify-between border-l-4 transform hover:-translate-y-1 animate-fade-in-up ${!msg.isRead ? (urgencyBorder[analysis.urgency] || 'border-indigo-500') : 'border-slate-700'}`; card.style.animationDelay = `${index * 50}ms`; card.innerHTML = `<div><div class="flex items-center justify-between mb-2"><span class="text-sm font-bold text-indigo-300">${analysis.classification || 'Unclassified'}</span><span class="text-xs font-semibold uppercase rounded-full px-2 py-1 text-white ${urgencyColors[analysis.urgency] || 'bg-slate-600'}">${analysis.urgency || 'N/A'}</span></div><h3 class="text-xl font-bold text-slate-100 truncate mb-1">${email.subject}</h3><p class="text-slate-400 text-sm truncate-3-lines leading-5">${analysis.details || email.body}</p></div>`; card.addEventListener("click", () => showFullMessage(msg)); messagesContainer.appendChild(card); }); };
+    const showFullMessage = (msg) => { messageToForward = msg; modalTitle.textContent = msg.original_email.subject; modalContent.textContent = msg.original_email.body; const analysis = msg.ai_analysis || {}; modalClassification.textContent = analysis.classification || 'N/A'; modalUrgency.textContent = analysis.urgency || 'N/A'; modalAction.textContent = analysis.extracted_action || 'N/A'; const originalMessage = currentMessages.find(m => m._id === msg._id); if (originalMessage && !originalMessage.isRead) { originalMessage.isRead = true; applyFilters(); setupDashboardView(); } summaryEl.textContent = ""; fullMessageModal.classList.remove("hidden"); };
+    closeModalBtn.addEventListener("click", () => fullMessageModal.classList.add("hidden"));
+
+    // --- Live Status Display ---
+    function displayTrainStatus(trains) {
+        if (!trainCardsContainer) return;
+        trainCardsContainer.innerHTML = "";
+        if (trains.length === 0) {
+            trainCardsContainer.innerHTML = '<p class="text-center text-slate-500 col-span-full">No trains currently in service according to the schedule.</p>';
+            return;
+        }
+        trains.forEach((train, index) => {
+            const card = document.createElement("div");
+            const statusColors = { "In Transit": "bg-blue-500/10 text-blue-300", "At Station": "bg-green-500/10 text-green-300"};
+            card.className = "bg-slate-800 border border-slate-700 rounded-xl p-4 flex flex-col space-y-4 animate-fade-in-up";
+            card.style.animationDelay = `${index * 50}ms`;
+
+            card.innerHTML = `
+                <div>
+                    <div class="flex justify-between items-center mb-2">
+                        <p class="font-bold text-lg text-slate-100">${train.tripId.replace(/_/g, ' ')}</p>
+                        <span class="text-xs font-semibold px-2 py-1 rounded-full ${statusColors[train.status] || 'bg-gray-500/10 text-gray-300'}">${train.status}</span>
+                    </div>
+                    <p class="text-sm text-indigo-400">${train.direction}</p>
+                </div>
+                
+                <div class="flex-1 space-y-2">
+                    <div class="flex items-center text-sm"><i data-lucide="arrow-up-right" class="w-4 h-4 mr-2 text-slate-500"></i><span class="text-slate-400">Last Dept:</span><span class="font-semibold ml-2 text-slate-200">${train.lastStation.name}</span><span class="ml-auto text-xs text-slate-500">${train.lastStation.time || ''}</span></div>
+                    <div class="flex items-center text-sm"><i data-lucide="arrow-down-right" class="w-4 h-4 mr-2 text-slate-500"></i><span class="text-slate-400">Next ETA:</span><span class="font-bold ml-2 text-green-400">${train.nextStation.name}</span><span class="ml-auto text-xs font-bold text-green-400">${train.nextStation.time || ''}</span></div>
+                </div>
+
+                <div>
+                    <div class="w-full bg-slate-700 rounded-full h-2.5"><div class="bg-indigo-500 h-2.5 rounded-full" style="width: ${train.progress}%"></div></div>
+                    <p class="text-xs text-right mt-1 text-slate-500">${train.totalStops} stops</p>
+                </div>
+            `;
+            trainCardsContainer.appendChild(card);
+        });
+        lucide.createIcons();
+    }
+    
+    // --- Data Fetching and Refreshing ---
+    async function fetchEmailsFromAPI() { try { const response = await fetch('http://localhost:3000/api/emails'); if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`); const processedDocs = await response.json(); return processedDocs.map(doc => ({ ...doc, isRead: false })); } catch (error) { console.error("Could not fetch emails:", error); showMessageBox("Connection Error", `Could not connect to the email server.`); return []; } }
+    async function fetchTasksForUser(role) { try { const response = await fetch(`http://localhost:3000/api/tasks?role=${encodeURIComponent(role)}`); if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`); return await response.json(); } catch (error) { console.error("Could not fetch tasks:", error); showMessageBox("Connection Error", `Could not fetch your tasks.`); return []; } }
+    async function fetchLiveStatus() { try { const response = await fetch('http://localhost:3000/api/live-status'); if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`); return await response.json(); } catch (error) { console.error("Could not fetch live status:", error); showMessageBox("Connection Error", `Could not fetch live train status.`); return []; } }
+    async function refreshData() { if (!currentUser) return; console.log('Refreshing data...'); const [newMessages, newTasks, newTrainData] = await Promise.all([ fetchEmailsFromAPI(), fetchTasksForUser(currentUser.role), fetchLiveStatus() ]); if (newMessages.length !== currentMessages.length || newTasks.length !== currentUserTasks.length || JSON.stringify(newTrainData) !== JSON.stringify(liveTrainData)) { showMessageBox('Data Updated', 'New messages, tasks, or train statuses have been loaded.'); currentMessages = newMessages; currentUserTasks = newTasks; liveTrainData = newTrainData; applyFilters(); setupDashboardView(); displayTrainStatus(liveTrainData);} }
+
+    function showView(viewId) { mainViews.forEach(view => view.classList.add('hidden')); const activeView = document.getElementById(viewId); activeView.classList.remove('hidden'); animateChildren(activeView); sideMenuLinks.forEach(link => link.classList.toggle('bg-slate-700', link.dataset.view === viewId)); if (viewId === 'analytics-view') initAnalyticsCharts(); if (viewId.endsWith('-view') && !['dashboard-view', 'messages-view', 'analytics-view'].includes(viewId)) { initProblemSolverChart(viewId); } }
+    sideMenuLinks.forEach(link => { link.addEventListener('click', (e) => { e.preventDefault(); showView(e.currentTarget.dataset.view); }); });
+    
+    // --- AI & Forwarding ---
+    async function summarizeWithAI(textToSummarize) { summaryEl.textContent = "Generating summary..."; const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${GEMINI_API_KEY}`; const payload = { contents: [{ parts: [{ text: `Summarize the following email text in three brief, clear bullet points:\n\n---\n\n${textToSummarize}` }] }] }; try { const response = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) }); if (!response.ok) { const errorBody = await response.json(); throw new Error(`API Error: ${errorBody.error.message}`); } const result = await response.json(); const summary = result.candidates?.[0]?.content?.parts?.[0]?.text; if (!summary) throw new Error("Could not extract summary from AI response."); summaryEl.textContent = summary; } catch (error) { summaryEl.textContent = `Error: ${error.message}`; } }
+    summarizeEmailBtn.addEventListener("click", () => summarizeWithAI(modalContent.textContent));
+    forwardMessageBtn.addEventListener('click', () => { const allRoles = ['Station Controller', 'Depot Manager', 'Managing Director', 'Director of Finance', 'Director of Operations']; forwardRoleSelect.innerHTML = allRoles.filter(role => role !== currentUser.role).map(role => `<option value="${role}">${role}</option>`).join(''); forwardMessageModal.classList.remove('hidden'); });
+    closeForwardModalBtn.addEventListener('click', () => forwardMessageModal.classList.add('hidden'));
+    sendForwardBtn.addEventListener('click', () => { if (forwardRoleSelect.value && messageToForward) { showMessageBox('Success', `Message forwarded to ${forwardRoleSelect.value}.`); forwardMessageModal.classList.add('hidden'); fullMessageModal.classList.add('hidden'); } });
+
+    // --- Chart Config and Init ---
+    const chartConfig = { options: { responsive: true, maintainAspectRatio: false, animation: { duration: 1000, easing: 'easeInOutQuart' }, plugins: { legend: { position: 'top', labels: { color: '#94a3b8' } } }, scales: { y: { beginAtZero: true, ticks: { color: '#94a3b8' }, grid: { color: '#334155' } }, x: { ticks: { color: '#94a3b8' }, grid: { display: false } } } } };
+    function initAnalyticsCharts() { if(initializedCharts['analytics-view']) return; new Chart(document.getElementById('activity-chart').getContext('2d'),{type:'line',data:{labels:['January','February','March','April','May','June','July'],datasets:[{label:'Messages Processed',data:[65,59,80,81,56,55,90],fill:true,backgroundColor:'rgba(79, 70, 229, 0.2)',borderColor:'rgba(99, 102, 241, 1)',tension:0.3}]},...chartConfig}); new Chart(document.getElementById('priority-chart').getContext('2d'),{type:'doughnut',data:{labels:['High','Medium','Low'],datasets:[{label:'Messages by Priority',data:[30,55,15],backgroundColor:['#ef4444','#f59e0b','#22c55e'],hoverOffset:4,borderColor:'#1e293b'}]},...chartConfig}); new Chart(document.getElementById('type-chart').getContext('2d'),{type:'pie',data:{labels:['Reports','Alerts','Invoices','Updates'],datasets:[{label:'Message Types',data:[40,25,15,20],backgroundColor:['#3b82f6','#8b5cf6','#ec4899','#10b981'],hoverOffset:4,borderColor:'#1e293b'}]},...chartConfig}); new Chart(document.getElementById('read-unread-chart').getContext('2d'),{type:'bar',data:{labels:['High','Medium','Low'],datasets:[{label:'Read',data:[25,40,10],backgroundColor:'#4f46e5'},{label:'Unread',data:[5,15,5],backgroundColor:'#a78bfa'}]},options:{...chartConfig.options,scales:{x:{stacked:true},y:{stacked:true}}}}); new Chart(document.getElementById('workload-chart').getContext('2d'),{type:'bar',data:{labels:['Operations','Finance','Maintenance','HR','Safety'],datasets:[{label:'Tasks Assigned',data:[120,85,110,50,75],backgroundColor:['#ef4444','#f97316','#84cc16','#0ea5e9','#6366f1']}]},...chartConfig}); initializedCharts['analytics-view']=true; }
+    function initProblemSolverChart(viewId) { if(initializedCharts[viewId]) return; switch(viewId){case'passenger-flow-view':new Chart(document.getElementById('passenger-flow-chart').getContext('2d'),{type:'line',data:{labels:['6am','8am','10am','12pm','2pm','4pm','6pm','8pm'],datasets:[{label:'Passenger Count',data:[1200,4500,3200,2800,2500,5500,6200,2100],borderColor:'#22c55e',backgroundColor:'rgba(34, 197, 94, 0.1)',fill:true,tension:0.4}]},...chartConfig});new Chart(document.getElementById('station-traffic-chart').getContext('2d'),{type:'bar',data:{labels:['Aluva','Kalamassery','Maharajas','Vyttila','Petta'],datasets:[{label:'Entries',data:[5200,4100,6800,7100,4500],backgroundColor:'#3b82f6'},{label:'Exits',data:[4800,4300,7200,6900,4600],backgroundColor:'#93c5fd'}]},...chartConfig});break;case'maintenance-view':new Chart(document.getElementById('maintenance-chart').getContext('2d'),{type:'line',data:{labels:['Jan','Feb','Mar','Apr','May','Jun'],datasets:[{label:'Health Score',data:[98,95,96,92,88,85],borderColor:'#ef4444',backgroundColor:'rgba(239, 68, 68, 0.1)',fill:true}]},...chartConfig});new Chart(document.getElementById('component-failure-chart').getContext('2d'),{type:'bar',data:{labels:['Brakes','Doors','HVAC','Signals','Motor'],datasets:[{label:'Failures (Last 6 Months)',data:[3,8,5,2,4],backgroundColor:'#f97316'}]},...chartConfig});break;case'energy-view':new Chart(document.getElementById('energy-chart').getContext('2d'),{type:'line',data:{labels:['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],datasets:[{label:'Consumption (MWh)',data:[15,17,16,18,19,14,12],borderColor:'#0ea5e9',backgroundColor:'rgba(14, 165, 233, 0.1)',fill:true,tension:0.3}]},...chartConfig});new Chart(document.getElementById('energy-breakdown-chart').getContext('2d'),{type:'doughnut',data:{labels:['Traction','Stations','Depots','Lighting'],datasets:[{data:[65,20,10,5],backgroundColor:['#0ea5e9','#6366f1','#a855f7','#d946ef'],borderColor:'#1e293b'}]},...chartConfig});break;case'revenue-view':new Chart(document.getElementById('revenue-chart').getContext('2d'),{type:'pie',data:{labels:['Advertising','Retail Leases','Parking Fees','Consultancy'],datasets:[{data:[50,25,15,10],backgroundColor:['#14b8a6','#f59e0b','#06b6d4','#8b5cf6'],borderColor:'#1e293b'}]},...chartConfig});new Chart(document.getElementById('revenue-growth-chart').getContext('2d'),{type:'bar',data:{labels:['Q1','Q2','Q3','Q4'],datasets:[{label:'Revenue (in Lakhs)',data:[85,92,110,105],backgroundColor:'#14b8a6'}]},...chartConfig});break;case'incident-view':new Chart(document.getElementById('incident-chart').getContext('2d'),{type:'bar',data:{labels:['Medical','Technical','Security','Passenger'],datasets:[{label:'Response Time (Mins)',data:[8,15,7,12],backgroundColor:['#ef4444','#f97316','#0ea5e9','#eab308']}]},...chartConfig});new Chart(document.getElementById('incident-time-chart').getContext('2d'),{type:'line',data:{labels:['6-10am','10am-2pm','2pm-6pm','6pm-10pm'],datasets:[{label:'Incidents Reported',data:[8,5,12,9],borderColor:'#ef4444',backgroundColor:'rgba(239, 68, 68, 0.1)',fill:true,tension:0.3}]},...chartConfig});break;} initializedCharts[viewId]=true; }
+    
+    window.onload = async () => { 
+        const savedUser = localStorage.getItem('kmrlUser'); 
+        if (savedUser) { 
+            await setupAppForUser(JSON.parse(savedUser));
+        } else { 
+            loginScreen.classList.remove("hidden"); 
+            dashboardScreen.classList.add("hidden"); 
+        } 
+        lucide.createIcons(); 
+    };
+  </script>
+</body>
+</html>
