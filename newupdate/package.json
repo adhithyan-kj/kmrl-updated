@@ -12,5 +12,8 @@
     "node-fetch": "^3.3.2",
     "node-imap": "^0.9.6",
     "pdf-parse": "^1.1.1"
+  },
+  "scripts": {
+    "start": "node server.js"
   }
 }
