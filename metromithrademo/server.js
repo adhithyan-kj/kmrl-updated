@@ -17,7 +17,10 @@ const app = express();
 const port = 3000;
 
 // --- Middleware ---
-app.use(cors());
+const corsOptions = {
+  origin: 'https://metromithra-static.onrender.com'
+};
+app.use(cors(corsOptions));
 app.use(express.json());
 
 // --- GTFS Data Loading (No changes) ---
