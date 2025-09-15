@@ -9,6 +9,7 @@ import bcrypt from 'bcryptjs';
 import fetch from 'node-fetch';
 import fs from 'fs';
 import { parse } from 'csv-parse/sync';
+import path from 'path'; // ⬅️ Add this import for file paths
 
 dotenv.config();
 
@@ -20,17 +21,25 @@ const port = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
+// ⬅️ START OF NEW CODE TO SERVE YOUR FRONTEND
+app.use(express.static('newupdate'));
+
+app.get('/', (req, res) => {
+    res.sendFile(path.join(path.resolve(), 'newupdate', 'index.html'));
+});
+// ⬅️ END OF NEW CODE
+
 // --- GTFS Data Loading ---
 let gtfsData = {};
 
 function loadGTFSData() {
     console.log('[LOG] Loading GTFS schedule data...');
     try {
-        const stops = parse(fs.readFileSync('./data/stops.txt', 'utf8'), { columns: true, skip_empty_lines: true });
-        const stopTimes = parse(fs.readFileSync('./data/stop_times.txt', 'utf8'), { columns: true, skip_empty_lines: true });
-        const trips = parse(fs.readFileSync('./data/trips.txt', 'utf8'), { columns: true, skip_empty_lines: true });
-        const calendar = parse(fs.readFileSync('./data/calendar.txt', 'utf8'), { columns: true, skip_empty_lines: true });
-        const routes = parse(fs.readFileSync('./data/routes.txt', 'utf8'), { columns: true, skip_empty_lines: true });
+        const stops = parse(fs.readFileSync('./newupdate/data/stops.txt', 'utf8'), { columns: true, skip_empty_lines: true });
+        const stopTimes = parse(fs.readFileSync('./newupdate/data/stop_times.txt', 'utf8'), { columns: true, skip_empty_lines: true });
+        const trips = parse(fs.readFileSync('./newupdate/data/trips.txt', 'utf8'), { columns: true, skip_empty_lines: true });
+        const calendar = parse(fs.readFileSync('./newupdate/data/calendar.txt', 'utf8'), { columns: true, skip_empty_lines: true });
+        const routes = parse(fs.readFileSync('./newupdate/data/routes.txt', 'utf8'), { columns: true, skip_empty_lines: true });
 
         gtfsData = {
             stops: new Map(stops.map(s => [s.stop_id, s])),
