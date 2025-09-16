@@ -548,7 +548,7 @@
     async function fetchEmailsFromAPI(role) {
       console.log(`Fetching emails for role: ${role} from local server...`);
       try {
-        const response = await fetch('http://localhost:3000/api/emails');
+        const response = await fetch('/api/emails');
         if (!response.ok) {
           const errorBody = await response.text();
           throw new Error(`HTTP error! Status: ${response.status}, Body: ${errorBody}`);
