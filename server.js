@@ -19,6 +19,10 @@ const port = 3000;
 // Use CORS to allow your HTML file to make requests to this server
 app.use(cors());
 
+
+// Add this line
+app.use(express.static('public'));
+
 // This function connects to IMAP and fetches emails
 function getEmails() {
     return new Promise((resolve, reject) => {
